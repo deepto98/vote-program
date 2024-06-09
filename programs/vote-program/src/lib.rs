@@ -12,12 +12,12 @@ pub mod vote_program {
     }
 
     pub fn upvote(ctx: Context<Vote>, _url: String) -> Result<()> {
-        ctx.accounts.upvote()?;  
+        ctx.accounts.upvote()?;
         Ok(())
     }
 
     pub fn downvote(ctx: Context<Vote>, _url: String) -> Result<()> {
-        ctx.accounts.downvote()?;  
+        ctx.accounts.downvote()?;
         Ok(())
     }
 }
@@ -43,10 +43,11 @@ pub struct Initialize<'info> {
 
 // Implementing functionality
 impl<'info> Initialize<'info> {
-    pub fn initialize(&mut self, bumps: InitializeBumps) {
-        //all bumps found are stored in InitializeBumps
+    pub fn initialize(&mut self, bumps: &InitializeBumps) -> Result<()> {
+        //all bumps found are stored in InitializeBumps (__ContextName__ followed by __Bumps__ )
         self.vote_state.score = 0;
         self.vote_state.bump = bumps.vote_state;
+        Ok(())
     }
 }
 
@@ -67,12 +68,13 @@ pub struct Vote<'info> {
 
 // Implementing functionality
 impl<'info> Vote<'info> {
-    pub fn upvote(&mut self) {
+    pub fn upvote(&mut self) -> Result<()> {
+        //&mut self : reference to struct Vote itself
         self.vote_state.score += 1;
         Ok(())
     }
 
-    pub fn downvote(&mut self) {
+    pub fn downvote(&mut self) -> Result<()> {
         self.vote_state.score -= 1;
         Ok(())
     }
@@ -80,7 +82,6 @@ impl<'info> Vote<'info> {
 
 // All custom accounts - PDAs
 #[account]
-#[derive(InitSpace)]
 pub struct VoteState {
     pub score: i64,
     pub bump: u8,
