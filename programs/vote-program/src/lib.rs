@@ -6,35 +6,75 @@ declare_id!("3DV5U3QhmL5oP2W1W69HzwxH9pMvjWqHprd8gdQTtw9J");
 pub mod vote_program {
     use super::*;
 
-    pub fn initialize(ctx: Context<Initialize>, _url:String) -> Result<()> {
-        ctx.accounts.initialize(&ctx.bumps)?;    //initialize acc with bumps
+    pub fn initialize(ctx: Context<Initialize>, _url: String) -> Result<()> {
+        ctx.accounts.initialize(&ctx.bumps)?; //initialize acc with bumps
+        Ok(())
+    }
+
+    pub fn upvote(ctx: Context<Vote>, _url: String) -> Result<()> {
+        ctx.accounts.upvote()?;  
+        Ok(())
+    }
+
+    pub fn downvote(ctx: Context<Vote>, _url: String) -> Result<()> {
+        ctx.accounts.downvote()?;  
         Ok(())
     }
 }
 
 //   Account specs for contexts
+
+// 1. Initialize Context s
 #[derive(Accounts)]
 #[instruction(_url: String)]
-// 1. Initialize Context
 pub struct Initialize<'info> {
     #[account(mut)]
     pub payer: Signer<'info>, //who pays for the account creation
     #[account(
         init, //init constraint because the account doesn't exist, has to be init
-        payer=payer,
-        seeds=[_url.as_bytes().as_ref()],     //url is passed from instruction
-        bump,//find canonical bump
-        space = VoteState::INIT_SPACE, 
+        payer = payer,
+        seeds = [_url.as_bytes().as_ref()], //url is passed from instruction
+        bump, //find canonical bump
+        space = VoteState::INIT_SPACE
     )]
-    pub vote_state: Account<'info, VoteState>,// the vote state PDA account
-    pub system_program:Program<'info,System>,
+    pub vote_state: Account<'info, VoteState>, // the vote state PDA account
+    pub system_program: Program<'info, System>,
 }
 
 // Implementing functionality
-impl<'info>Initialize<'info>{
-    pub fn initialize(&mut self,bumps:InitializeBumps){//all bumps found are stored in InitializeBumps
+impl<'info> Initialize<'info> {
+    pub fn initialize(&mut self, bumps: InitializeBumps) {
+        //all bumps found are stored in InitializeBumps
         self.vote_state.score = 0;
-        self.vote_state.bump=bumps.vote_state;
+        self.vote_state.bump = bumps.vote_state;
+    }
+}
+
+// 2. Vote Context
+
+#[derive(Accounts)]
+#[instruction(_url: String)]
+pub struct Vote<'info> {
+    #[account(mut)]
+    pub payer: Signer<'info>, //who pays for the account creation
+    #[account(
+         mut,
+        seeds=[_url.as_bytes().as_ref()],     //url is passed from instruction
+        bump = vote_state.bump,//fetch  bump
+     )]
+    pub vote_state: Account<'info, VoteState>, // the vote state PDA account
+}
+
+// Implementing functionality
+impl<'info> Vote<'info> {
+    pub fn upvote(&mut self) {
+        self.vote_state.score += 1;
+        Ok(())
+    }
+
+    pub fn downvote(&mut self) {
+        self.vote_state.score -= 1;
+        Ok(())
     }
 }
 
