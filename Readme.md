@@ -60,3 +60,8 @@ pub struct Initialize<'info> {
     pub vote_state: Account<'info, VoteState>,
     ...
 ```
+## Running tests:
+![](assets/2024-06-09-22-05-58.png)
+## Challenges
+Store address of last person who upvoted/downvoted
+Branch : store-last-voter-challenge

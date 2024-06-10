@@ -31,4 +31,48 @@ describe("vote-program", () => {
     const voteState = await program.account.voteState.fetch(voteAccount);
     console.log("Vote count for url is", voteState.score.toString());
   });
+
+  it("Upvoted!", async () => {
+    // Add your test here.
+    const tx = await program.methods
+      .upvote(voteUrl)
+      .accountsPartial({        //pass accounts required for initialize instruction
+        voteState: voteAccount,
+      })
+      .rpc();
+    console.log("Your transaction signature", tx);
+
+    const voteState = await program.account.voteState.fetch(voteAccount);
+    console.log("Vote count for url is", voteState.score.toString());
+  });
+
+  it("Second upvote!", async () => {
+    // Add your test here.
+    const tx = await program.methods
+      .upvote(voteUrl)
+      .accountsPartial({        //pass accounts required for initialize instruction
+        voteState: voteAccount,
+      })
+      .rpc();
+    console.log("Your transaction signature", tx);
+
+    const voteState = await program.account.voteState.fetch(voteAccount);
+    console.log("Vote count for url is", voteState.score.toString());
+  });
+
+
+  it("Downvote", async () => {
+    // Add your test here.
+    const tx = await program.methods
+      .downvote(voteUrl)
+      .accountsPartial({        //pass accounts required for initialize instruction
+        voteState: voteAccount,
+      })
+      .rpc();
+    console.log("Your transaction signature", tx);
+
+    const voteState = await program.account.voteState.fetch(voteAccount);
+    console.log("Vote count for url is", voteState.score.toString());
+  });
 });
+
