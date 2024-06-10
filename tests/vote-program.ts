@@ -37,13 +37,14 @@ describe("vote-program", () => {
     const tx = await program.methods
       .upvote(voteUrl)
       .accountsPartial({        //pass accounts required for initialize instruction
+        payer: provider.wallet.publicKey,
         voteState: voteAccount,
       })
       .rpc();
     console.log("Your transaction signature", tx);
 
     const voteState = await program.account.voteState.fetch(voteAccount);
-    console.log("Vote count for url is", voteState.score.toString());
+    console.log("Current Vote state is :\n", voteState);
   });
 
   it("Second upvote!", async () => {
@@ -51,13 +52,14 @@ describe("vote-program", () => {
     const tx = await program.methods
       .upvote(voteUrl)
       .accountsPartial({        //pass accounts required for initialize instruction
+        payer: provider.wallet.publicKey,
         voteState: voteAccount,
       })
       .rpc();
     console.log("Your transaction signature", tx);
 
     const voteState = await program.account.voteState.fetch(voteAccount);
-    console.log("Vote count for url is", voteState.score.toString());
+    console.log("Current Vote state is :\n", voteState);
   });
 
 
@@ -66,13 +68,14 @@ describe("vote-program", () => {
     const tx = await program.methods
       .downvote(voteUrl)
       .accountsPartial({        //pass accounts required for initialize instruction
+        payer: provider.wallet.publicKey,
         voteState: voteAccount,
       })
       .rpc();
     console.log("Your transaction signature", tx);
 
     const voteState = await program.account.voteState.fetch(voteAccount);
-    console.log("Vote count for url is", voteState.score.toString());
+    console.log("Current Vote state is :\n", voteState);
   });
 });
 

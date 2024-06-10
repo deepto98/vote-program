@@ -12,12 +12,12 @@ pub mod vote_program {
     }
 
     pub fn upvote(ctx: Context<Vote>, _url: String) -> Result<()> {
-        ctx.accounts.upvote()?;
+        ctx.accounts.upvote(ctx.accounts.payer.key)?;
         Ok(())
     }
 
     pub fn downvote(ctx: Context<Vote>, _url: String) -> Result<()> {
-        ctx.accounts.downvote()?;
+        ctx.accounts.downvote(ctx.accounts.payer.key)?;
         Ok(())
     }
 }
@@ -46,6 +46,7 @@ impl<'info> Initialize<'info> {
     pub fn initialize(&mut self, bumps: &InitializeBumps) -> Result<()> {
         //all bumps found are stored in InitializeBumps (__ContextName__ followed by __Bumps__ )
         self.vote_state.score = 0;
+        self.vote_state.last_vote = None;
         self.vote_state.bump = bumps.vote_state;
         Ok(())
     }
@@ -68,14 +69,18 @@ pub struct Vote<'info> {
 
 // Implementing functionality
 impl<'info> Vote<'info> {
-    pub fn upvote(&mut self) -> Result<()> {
+    pub fn upvote(&mut self, key: &Pubkey) -> Result<()> {
         //&mut self : reference to struct Vote itself
         self.vote_state.score += 1;
+        self.vote_state.last_vote = Some(*key);
+
         Ok(())
     }
 
-    pub fn downvote(&mut self) -> Result<()> {
+    pub fn downvote(&mut self, key: &Pubkey) -> Result<()> {
         self.vote_state.score -= 1;
+        self.vote_state.last_vote = Some(*key);
+
         Ok(())
     }
 }
@@ -85,8 +90,10 @@ impl<'info> Vote<'info> {
 pub struct VoteState {
     pub score: i64,
     pub bump: u8,
+    pub last_vote: Option<Pubkey>, // option - none or Some<Pubkey>
 }
 
 impl Space for VoteState {
-    const INIT_SPACE: usize = 8 + 8 + 1;
+    const INIT_SPACE: usize = 8 + 8 + 1 + 33; // 8 - anchor discriminator,8-score, 1 - bump,
+                                              // 33: ! Option + 32 Pubkey
 }

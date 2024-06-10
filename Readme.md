@@ -65,3 +65,5 @@ pub struct Initialize<'info> {
 ## Challenges
 Store address of last person who upvoted/downvoted
 Branch : store-last-voter-challenge
+
+![](assets/2024-06-11-04-00-25.png)
